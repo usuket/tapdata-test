@@ -1,7 +1,7 @@
 -- DML: Insert dummy data
 USE test_data_db;
 
-INSERT INTO customers (first_name, last_name, email, is_active)
+INSERT INTO test_data_db.customers (first_name, last_name, email, is_active)
 VALUES ('Eve', 'Adams', 'eve.adams@example.com', TRUE),
        ('Frank', 'Taylor', 'frank.taylor@example.com', TRUE),
        ('Grace', 'Miller', 'grace.miller@example.com', TRUE),
