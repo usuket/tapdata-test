@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------
+  # 1. TapData Live Data Platform Service
+  # ----------------------------------------------------------------
+  tapdata:
+    image: ghcr.io/tapdata/tapdata:latest
+    container_name: tapdata_server
+    # Map the default TapData UI port (3030) to the host machine
+    ports:
+      - "3030:3030"
+    # Ensure MySQL starts before TapData
+    depends_on:
+      - mysql
+    # Restart the service automatically on failure
+    restart: unless-stopped
+    # Use a named volume for TapData's internal data (MongoDB) persistence
+    volumes:
+      - tapdata-data:/opt/tapdata/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3030/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ----------------------------------------------------------------
+  # 2. MySQL Database Service
+  # ----------------------------------------------------------------
+  mysql:
+    platform: linux/amd64
+    image: mysql:5.7
+    container_name: mysql_db
+    # Map the default MySQL port (3306) to the host machine
+    ports:
+      - "3306:3306"
+    # Essential environment variables for initial MySQL setup
+    environment:
+      # NOTE: Change these strong passwords in a production environment
+      MYSQL_ROOT_PASSWORD: rootpasss
+      MYSQL_DATABASE: test_data_db
+      MYSQL_USER: tapdata_user
+      MYSQL_PASSWORD: changeme_tapdata
+    # Use a named volume for MySQL data persistence
+    volumes:
+      - ./db/conf.d:/etc/mysql/conf.d
+    # Set the command to ensure compatibility with older MySQL clients if needed,
+    # though MySQL 8.0 is generally recommended.
+#    command: --default-authentication-plugin=mysql_native_password
+
+# Define persistent volumes
+volumes:
+  tapdata-data:
+  mysql-data:
